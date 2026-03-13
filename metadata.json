@@ -1,0 +1,5 @@
+{
+  "name": "GIS Command Center",
+  "description": "A cheery, dashboard-style home page for GIS analysts in Opelika, AL, featuring enterprise tools, development workbench, and real-time info.",
+  "requestFramePermissions": []
+}
