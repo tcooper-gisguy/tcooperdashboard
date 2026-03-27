@@ -62,7 +62,7 @@ export default function App() {
         { title: "Opelika GIS Data Hub", url: "https://explore.opelika-al.gov/portal/apps/sites/#/city-of-opelika-gis-data-hub" },
         { title: "ArcGIS Monitor", url: "https://gismonitor:30443/arcgis/monitor/signin" },
         { title: "ArcGIS Server Manager", url: "https://explore.opelika-al.gov/server/manager/#" },
-        { title: "WeatherStation Testing", url: "https://survey123.arcgis.com/share/56f6401f76214a2dadf74b2ec4472c82?portalUrl=https://explore.opelika-al.gov/portal" },
+        { title: "MachAlert Issue Report", url: "https://survey123.arcgis.com/share/56f6401f76214a2dadf74b2ec4472c82?portalUrl=https://explore.opelika-al.gov/portal" },
       ]
     },
     {
@@ -144,10 +144,9 @@ export default function App() {
       links: [
         { title: "Postal Street Suffix Guide", url: "https://pe.usps.com/text/pub28/28apc_002.htm" },
         { title: "Zoning Ordinance (Updated)", url: "https://www.opelika-al.gov/DocumentCenter/View/5639/ZONING-ORDINANCE----Updated-12062022" },
-        { title: "Opelika Cemeteries", url: "https://gisportal.opelika.net/portal/apps/webappviewer/index.html?id=b04b88406e0c4f0d9481324d69da3c7" },
         { title: "Munis Live Assets", url: "https://munisapp.opelika-al.gov/prod/munis/gas/app/ua/r/mugwc/wmastmnt" },
-        { title: "E911 Dashboard", url: "https://explore.opelika-al.gov/portal/apps/dashboards/e53375328a3b40f79ed0e3c09d67fd7a" },
-        { title: "OFD Response Plan", url: "https://docs.google.com/spreadsheets/d/1YPH1T18V-cl6TZQS8aLw24Qf7JkCm3znEKCpXmaDtY/edit?gid=0#gid=0" },
+        { title: "Active CFS Viewer Fire", url: "https://opelikagis.maps.arcgis.com/apps/instant/interactivelegend/index.html?appid=1ef8540b252244948c4fde553750145c&locale=en&center=-85.3794%3B32.6482&level=18" },
+        { title: "E911 Dashboard", url: "https://opelikagis.maps.arcgis.com/apps/dashboards/bb302dadf0374078bbff2e2e87d96a67" },
       ]
     },
     {
@@ -155,6 +154,7 @@ export default function App() {
       icon: <Share2 className="w-5 h-5 text-opelika-red" />,
       links: [
         { title: "ChatGPT", url: "https://chatgpt.com/" },
+        { title: "AI Studio", url: "https://aistudio.google.com/apps" },
         { title: "Bitmoji Account", url: "https://www.bitmoji.com/account_v2/" },
         { title: "Unsplash Images", url: "https://unsplash.com/" },
         { title: "what3words Location", url: "https://what3words.com/downward.riches.incomes" },
