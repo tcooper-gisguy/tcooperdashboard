@@ -1,5 +1,6 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { GoogleGenAI } from "@google/genai";
 import { 
   Globe, 
   Hammer, 
@@ -20,8 +21,11 @@ import {
   Database,
   Cpu,
   Activity,
+  CloudSun,
+  Quote,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  RefreshCw
 } from 'lucide-react';
 
 interface LinkItem {
@@ -38,11 +42,51 @@ interface DashboardCard {
 export default function App() {
   const [time, setTime] = useState(new Date());
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+  const [inspiration, setInspiration] = useState<{ quote: string; reference: string }>({
+    quote: "The grass withers, the flower fades, but the word of our God will stand forever.",
+    reference: "Isaiah 40:8 (ESV)"
+  });
+  const [loadingInspiration, setLoadingInspiration] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
+    fetchInspiration();
     return () => clearInterval(timer);
   }, []);
+
+  const fetchInspiration = async () => {
+    setLoadingInspiration(true);
+    try {
+      // Note: On GitHub Pages, you'll need to set up an Environment Variable 
+      // or use a secure way to access your API key.
+      const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || (process.env as any).GEMINI_API_KEY || '';
+      if (!apiKey) throw new Error("API Key missing");
+      
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: "Provide one inspirational Bible verse from the ESV translation. Format your response exactly like this: \"[Verse Body]\" — [Reference] (ESV)",
+        config: {
+          systemInstruction: "You are an inspirational assistant. Your goal is to provide a single, uplifting Bible verse from the English Standard Version (ESV).",
+        }
+      });
+
+      const text = response.text;
+      if (text) {
+        const parts = text.split(" — ");
+        if (parts.length === 2) {
+          setInspiration({
+            quote: parts[0].replace(/"/g, ""),
+            reference: parts[1]
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch inspiration:", error);
+    } finally {
+      setLoadingInspiration(false);
+    }
+  };
 
   const toggleCategory = (title: string) => {
     setExpandedCategories(prev => 
@@ -105,6 +149,7 @@ export default function App() {
         { title: "Cisco Webx User Portal", url: "https://var-bc.broadcloudpbx.com/myphonenext/" },
         { title: "BlueBeam ADMIN", url: "https://org-admin.bluebeam.com/BBOAC/s/" },
         { title: "Bluebeam Sign In", url: "https://signin.bluebeam.com/" },
+        { title: "Placer.ai Analytics", url: "https://analytics.placer.ai/explore?params=%7B%22type%22:%22venues%252Ccomplexes%22,%22center%22:%7B%22lat%22:32.646930501095014,%22lng%22:-85.38021479733882%7D,%22ne%22:%2232.64803946804672,-85.37679473165107%22,%22sw%22:%2232.645821520391536,-85.3836348630272%22,%22zoom%22:17.705981159288694%7D" },
         { title: "Discord | Opelika GIS", url: "https://discord.com/channels/1401959637464514663/1401959639284846636" },
         { title: "Thor Guard Dashboard", url: "https://360.thormobile.net/opelika-al/" },
         { title: "Web Rep Console", url: "https://connect.opelika-al.gov/console" },
@@ -154,6 +199,7 @@ export default function App() {
       icon: <Share2 className="w-5 h-5 text-opelika-red" />,
       links: [
         { title: "ChatGPT", url: "https://chatgpt.com/" },
+        { title: "Google Gemini", url: "https://gemini.google.com/app?utm_source=app_launcher&utm_medium=owned&utm_campaign=base_all" },
         { title: "AI Studio", url: "https://aistudio.google.com/apps" },
         { title: "Bitmoji Account", url: "https://www.bitmoji.com/account_v2/" },
         { title: "Unsplash Images", url: "https://unsplash.com/" },
@@ -175,7 +221,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Globe Background Overlay (IN COLOR) */}
       <div 
         className="absolute inset-0 z-0 opacity-20 pointer-events-none"
         style={{
@@ -185,7 +230,6 @@ export default function App() {
         }}
       />
 
-      {/* Header */}
       <header className="w-full bg-card-bg px-6 py-4 shadow-md border-b-2 border-slate-200 flex flex-col md:flex-row justify-between items-center z-10 gap-4">
         <div className="flex items-center gap-6">
           <div className="header-logo">
@@ -216,44 +260,93 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-10 z-10">
-        {/* Hero / Interaction Center */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center text-center mb-12"
-        >
-          <div className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-white/20 max-w-3xl">
-            <h2 className="text-3xl font-bold text-main-black mb-4">Workflow Hub</h2>
-            <p className="text-slate-600 mb-8 leading-relaxed">
-              Welcome to your centralized workbench. Access enterprise GIS, manage critical infrastructure, 
-              and leverage advanced geospatial analysis—all from one cheery interface. 
-              Click below to start your key daily GIS task.
-            </p>
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-btn-start to-btn-end text-white px-10 py-4 rounded-full font-bold uppercase tracking-widest shadow-lg shadow-opelika-red/30 hover:shadow-opelika-red/50 transition-all flex items-center gap-3 mx-auto"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          {/* Weather Section */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-white/20 flex flex-col items-center text-center"
+          >
+            <div className="bg-opelika-red/10 p-4 rounded-full mb-4">
+              <CloudSun className="w-10 h-10 text-opelika-red" />
+            </div>
+            <h2 className="text-2xl font-bold text-main-black mb-2">Today's Weather</h2>
+            <div className="flex items-center gap-4 mb-4">
+              <span className="text-4xl font-bold text-slate-800">72°F</span>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-slate-600 uppercase tracking-wider">Opelika, AL</p>
+                <p className="text-xs text-slate-400">Mostly Sunny</p>
+              </div>
+            </div>
+            <a 
+              href="https://www.foxweather.com/local-weather/alabama/opelika"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-slate-100 text-slate-700 px-8 py-3 rounded-full font-bold uppercase tracking-widest hover:bg-opelika-red hover:text-white transition-all flex items-center gap-2 text-xs"
             >
-              <Zap className="w-5 h-5" />
-              Begin Infrastructure Analysis
-            </motion.button>
-          </div>
-        </motion.div>
+              <ExternalLink className="w-4 h-4" />
+              Detailed Forecast
+            </a>
+          </motion.div>
 
-        {/* Dashboard Grid */}
+          {/* Inspiration Section */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-white/20 flex flex-col items-center text-center h-full justify-between group"
+          >
+            <div className="flex justify-between w-full items-start mb-4">
+              <div className="w-10" />
+              <div className="bg-opelika-red/10 p-4 rounded-full">
+                <Quote className="w-10 h-10 text-opelika-red" />
+              </div>
+              <button 
+                onClick={fetchInspiration}
+                disabled={loadingInspiration}
+                className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-opelika-red disabled:opacity-50"
+                title="Get New Inspiration"
+              >
+                <RefreshCw className={`w-5 h-5 ${loadingInspiration ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+            
+            <div className="flex flex-col flex-1 justify-center min-h-[160px]">
+              <h2 className="text-2xl font-bold text-main-black mb-4">Inspiration for Today</h2>
+              <AnimatePresence mode="wait">
+                <motion.blockquote 
+                  key={inspiration.quote}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="text-slate-700 italic text-lg mb-6 leading-relaxed px-4"
+                >
+                  "{inspiration.quote}"
+                  <cite className="block not-italic text-sm font-bold text-opelika-red mt-3 uppercase tracking-tighter">— {inspiration.reference}</cite>
+                </motion.blockquote>
+              </AnimatePresence>
+            </div>
+            <a 
+              href="https://biblehub.com/esv/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-slate-100 text-slate-700 px-8 py-3 rounded-full font-bold uppercase tracking-widest hover:bg-opelika-red hover:text-white transition-all flex items-center gap-2 text-xs"
+            >
+              <FileText className="w-4 h-4" />
+              Explore the Word
+            </a>
+          </motion.div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
           {dashboardData.map((card, index) => {
             const isExpanded = expandedCategories.includes(card.title);
             return (
               <motion.div 
                 key={card.title}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="bg-card-bg/95 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 overflow-hidden hover:border-opelika-red hover:shadow-2xl hover:shadow-opelika-red/10 transition-all flex flex-col group"
+                className="bg-card-bg/95 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 overflow-hidden hover:border-opelika-red transition-all flex flex-col group"
               >
                 <button 
                   onClick={() => toggleCategory(card.title)}
@@ -263,32 +356,15 @@ export default function App() {
                     {card.icon}
                     <h3 className="font-bold text-lg text-main-black">{card.title}</h3>
                   </div>
-                  {isExpanded ? (
-                    <ChevronUp className="w-5 h-5 text-slate-400 group-hover:text-opelika-red transition-colors" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-slate-400 group-hover:text-opelika-red transition-colors" />
-                  )}
+                  {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
                 </button>
-                
                 <AnimatePresence>
                   {isExpanded && (
-                    <motion.div 
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: 'easeInOut' }}
-                      className="overflow-hidden"
-                    >
+                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
                       <div className="p-4 flex flex-col gap-2 max-h-[400px] overflow-y-auto custom-scrollbar">
                         {card.links.map((link) => (
-                          <a 
-                            key={link.title}
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 border border-transparent hover:bg-white hover:border-opelika-red hover:shadow-sm transition-all group/link"
-                          >
-                            <span className="text-sm font-medium text-slate-700 group-hover/link:text-opelika-red truncate pr-2">{link.title}</span>
+                          <a key={link.title} href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 hover:bg-white hover:border-opelika-red transition-all group/link">
+                            <span className="text-sm font-medium text-slate-700 truncate pr-2">{link.title}</span>
                             <ExternalLink className="w-4 h-4 text-slate-400 group-hover/link:text-opelika-red opacity-0 group-hover/link:opacity-100 transition-all flex-shrink-0" />
                           </a>
                         ))}
@@ -302,27 +378,9 @@ export default function App() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="w-full py-6 text-center text-slate-400 text-xs z-10 border-t border-slate-200 bg-white/50 backdrop-blur-sm">
         <p>© {new Date().getFullYear()} City of Opelika, AL | Enterprise GIS Division</p>
-        <p className="mt-1 font-mono">Precision Geospatial Engineering</p>
       </footer>
-
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #e2e8f0;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #cbd5e1;
-        }
-      `}</style>
     </div>
   );
 }
